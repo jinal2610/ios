@@ -184,6 +184,10 @@ NSString * NotReachableNetworkForDownloadsNotification = @"NotReachableNetworkFo
         [self checkIfIsNecesaryShowPassCode];
     }
 
+    //Show TouchID dialog if active
+    if([ManageAppSettingsDB isTouchID]) {
+        [[ManageTouchID sharedSingleton] showTouchIDAuth];
+    }
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [[InstantUpload instantUploadManager] activate];
@@ -994,7 +998,7 @@ NSString * NotReachableNetworkForDownloadsNotification = @"NotReachableNetworkFo
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     //For iOS8 we need to change the checking to this method, for show as a first step the pincode screen
-    [self checkIfIsNecesaryShowPassCodeWillEnterForeground];
+    [self checkIfIsNecesaryShowPassCodeWillResignActive];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -1775,13 +1779,6 @@ NSString * NotReachableNetworkForDownloadsNotification = @"NotReachableNetworkFo
                 oc.modalPresentationStyle = UIModalPresentationFormSheet;
                 [rootController presentViewController:oc animated:NO completion:nil];
             }
-            
-            
-            //Show TouchID dialog if active
-            if([ManageAppSettingsDB isTouchID]) {
-                [[ManageTouchID sharedSingleton] showTouchIDAuth];
-            }
-
         });
     } else {        
         [self initAppWithEtagRequest:YES];
@@ -1789,7 +1786,7 @@ NSString * NotReachableNetworkForDownloadsNotification = @"NotReachableNetworkFo
   
 }
 
-- (void)checkIfIsNecesaryShowPassCodeWillEnterForeground {
+- (void)checkIfIsNecesaryShowPassCodeWillResignActive {
     
     if ([ManageAppSettingsDB isPasscode] || k_is_passcode_forced) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1819,11 +1816,6 @@ NSString * NotReachableNetworkForDownloadsNotification = @"NotReachableNetworkFo
                 [_splitViewController presentViewController:oc animated:NO completion:^{
                     DLog(@"present complete");
                 }];
-            }
-            
-            //Show TouchID dialog if active
-            if([ManageAppSettingsDB isTouchID]) {
-                [[ManageTouchID sharedSingleton] showTouchIDAuth];
             }
         });
     }
@@ -1865,6 +1857,7 @@ NSString * NotReachableNetworkForDownloadsNotification = @"NotReachableNetworkFo
     if (_settingsViewController.vc) {
         [_settingsViewController.vc dismissViewControllerAnimated:NO completion:nil];
     }
+
     
 }
 
